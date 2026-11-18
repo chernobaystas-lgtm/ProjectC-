@@ -19,7 +19,7 @@ public class JsonFileRepository : IFileRepository
     File.WriteAllText(path, hex);
   }
 
-  public T Load<T>(string path)
+  public T? Load<T>(string path)
   {
     if (!File.Exists(path)) return default;
     string hex = File.ReadAllText(path);

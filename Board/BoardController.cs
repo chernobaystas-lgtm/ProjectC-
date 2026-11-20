@@ -254,9 +254,10 @@ public class BoardController
       Color = brush.Color
     };
 
-    // Кисть и ластик работают по одной клетке.
+    // Кисть и ластик работают сразу.
     if (toolName == "Brush" || toolName == "Eraser")
     {
+      shapeStart = null;
       history.SaveState();
 
       miniBar.ActiveTool.Execute(
@@ -272,22 +273,22 @@ public class BoardController
       return;
     }
 
-    // Для фигур первая клавиша Space задаёт начало.
+    // Первое нажатие запоминает начальную точку.
     if (shapeStart == null)
     {
       shapeStart = (boardCursor.X, boardCursor.Y);
       return;
     }
 
-    // Вторая клавиша Space задаёт конец фигуры.
-    history.SaveState();
-
+    // Второе нажатие рисует от первой точки до текущей.
     var start = shapeStart.Value;
+
+    history.SaveState();
 
     miniBar.ActiveTool.Execute(
         board,
-        boardCursor.X,
-        boardCursor.Y,
+        start.X,
+        start.Y,
         boardCursor.X,
         boardCursor.Y,
         cell,
@@ -296,4 +297,5 @@ public class BoardController
 
     shapeStart = null;
   }
+
 }

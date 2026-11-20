@@ -8,44 +8,42 @@ using OwnProject.Board.Methods;
 
 public class RectangleTool : IDrawingTool
 {
-  public string Name => "Rectangle";
+    public string Name => "Rectangle";
 
-  public void Execute(
-      IBoard board,
-      int startX,
-      int startY,
-      int endX,
-      int endY,
-      BoardCell cell,
-      int thickness)
-  {
-    ArgumentNullException.ThrowIfNull(board);
+    public void Execute(
+        IBoard board,
+        int startX,
+        int startY,
+        int endX,
+        int endY,
+        BoardCell cell,
+        int width,
+        int height)
+    {
+        ArgumentNullException.ThrowIfNull(board);
 
-    if (thickness <= 0)
-      throw new ArgumentOutOfRangeException(nameof(thickness));
+        if (width <= 0)
+            throw new ArgumentOutOfRangeException(nameof(width));
 
-    // Определяем границы прямоугольника
-    int left = Math.Min(startX, endX);
-    int right = Math.Max(startX, endX);
+        if (height <= 0)
+            throw new ArgumentOutOfRangeException(nameof(height));
 
-    int top = Math.Min(startY, endY);
-    int bottom = Math.Max(startY, endY);
+        int left = Math.Min(startX, endX);
+        int right = Math.Max(startX, endX);
 
-    // Верхняя сторона
-    LineRasterizer.DrawLine(
-        board, left, top, right, top, cell, thickness);
+        int top = Math.Min(startY, endY);
+        int bottom = Math.Max(startY, endY);
 
-    // Нижняя сторона
-    LineRasterizer.DrawLine(
-        board, left, bottom, right, bottom, cell, thickness);
+        LineRasterizer.DrawLine(
+            board, left, top, right, top, cell, width, height);
 
-    // Левая сторона
-    LineRasterizer.DrawLine(
-        board, left, top, left, bottom, cell, thickness);
+        LineRasterizer.DrawLine(
+            board, left, bottom, right, bottom, cell, width, height);
 
-    // Правая сторона
-    LineRasterizer.DrawLine(
-        board, right, top, right, bottom, cell, thickness);
-  }
+        LineRasterizer.DrawLine(
+            board, left, top, left, bottom, cell, width, height);
+
+        LineRasterizer.DrawLine(
+            board, right, top, right, bottom, cell, width, height);
+    }
 }
-

@@ -17,7 +17,8 @@ public class EraserTool : IDrawingTool
       int endX,
       int endY,
       BoardCell cell,
-      int thickness)
+      int width,
+int height)
   {
     BoardCell emptyCell = new BoardCell
     {
@@ -32,7 +33,8 @@ public class EraserTool : IDrawingTool
         endX,
         endY,
         emptyCell,
-        thickness);
+         width,
+ height);
   }
 }
 

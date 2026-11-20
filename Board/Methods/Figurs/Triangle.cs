@@ -17,21 +17,23 @@ public class TriangleTool : IDrawingTool
       int endX,
       int endY,
       BoardCell cell,
-      int thickness)
+      int width,
+      int height)
   {
     ArgumentNullException.ThrowIfNull(board);
 
-    if (thickness <= 0)
-      throw new ArgumentOutOfRangeException(nameof(thickness));
+    if (width <= 0)
+      throw new ArgumentOutOfRangeException(nameof(width));
 
-    // Определяем границы области
+    if (height <= 0)
+      throw new ArgumentOutOfRangeException(nameof(height));
+
     int left = Math.Min(startX, endX);
     int right = Math.Max(startX, endX);
 
     int top = Math.Min(startY, endY);
     int bottom = Math.Max(startY, endY);
 
-    // Вычисляем три вершины треугольника
     int topX = left + (right - left) / 2;
     int topY = top;
 
@@ -41,28 +43,13 @@ public class TriangleTool : IDrawingTool
     int rightX = right;
     int rightY = bottom;
 
-    // Левая сторона
     LineRasterizer.DrawLine(
-        board,
-        topX, topY,
-        leftX, leftY,
-        cell,
-        thickness);
+        board, topX, topY, leftX, leftY, cell, width, height);
 
-    // Правая сторона
     LineRasterizer.DrawLine(
-        board,
-        topX, topY,
-        rightX, rightY,
-        cell,
-        thickness);
+        board, topX, topY, rightX, rightY, cell, width, height);
 
-    // Основание
     LineRasterizer.DrawLine(
-        board,
-        leftX, leftY,
-        rightX, rightY,
-        cell,
-        thickness);
+        board, leftX, leftY, rightX, rightY, cell, width, height);
   }
 }

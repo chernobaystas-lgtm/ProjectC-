@@ -14,5 +14,6 @@ public interface IDrawingTool
         int endX,
         int endY,
         BoardCell cell,
-        int thickness);
+        int width,
+        int height);
 }

@@ -17,17 +17,20 @@ public class EllipseTool : IDrawingTool
       int endX,
       int endY,
       BoardCell cell,
-      int thickness)
+      int width,
+      int height)
   {
     ArgumentNullException.ThrowIfNull(board);
 
-    if (thickness <= 0)
-      throw new ArgumentOutOfRangeException(nameof(thickness));
+    if (width <= 0)
+      throw new ArgumentOutOfRangeException(nameof(width));
+
+    if (height <= 0)
+      throw new ArgumentOutOfRangeException(nameof(height));
 
     CheckCoordinates(board, startX, startY);
     CheckCoordinates(board, endX, endY);
 
-    // Определяем границы эллипса
     int left = Math.Min(startX, endX);
     int right = Math.Max(startX, endX);
     int top = Math.Min(startY, endY);
@@ -39,21 +42,14 @@ public class EllipseTool : IDrawingTool
     double radiusX = (right - left) / 2.0;
     double radiusY = (bottom - top) / 2.0;
 
-    // Если одна из осей равна нулю,
-    // рисуем обычную линию
     if (radiusX == 0 || radiusY == 0)
     {
       LineRasterizer.DrawLine(
-          board,
-          left, top,
-          right, bottom,
-          cell,
-          thickness);
+          board, left, top, right, bottom, cell, width, height);
 
       return;
     }
 
-    // Количество точек для построения эллипса
     int segments = Math.Max(
         24,
         (int)Math.Ceiling(
@@ -86,7 +82,8 @@ public class EllipseTool : IDrawingTool
             x,
             y,
             cell,
-            thickness);
+            width,
+            height);
       }
 
       previousX = x;
@@ -94,7 +91,6 @@ public class EllipseTool : IDrawingTool
     }
   }
 
-  // Проверка координат
   private void CheckCoordinates(
       IBoard board,
       int x,

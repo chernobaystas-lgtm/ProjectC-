@@ -14,12 +14,16 @@ public static class LineRasterizer
       int endX,
       int endY,
       BoardCell cell,
-      int thickness)
+      int width,
+      int height)
   {
     ArgumentNullException.ThrowIfNull(board);
 
-    if (thickness <= 0)
-      throw new ArgumentOutOfRangeException(nameof(thickness));
+    if (width <= 0)
+      throw new ArgumentOutOfRangeException(nameof(width));
+
+    if (height <= 0)
+      throw new ArgumentOutOfRangeException(nameof(height));
 
     CheckCoordinates(board, startX, startY);
     CheckCoordinates(board, endX, endY);
@@ -37,7 +41,7 @@ public static class LineRasterizer
 
     while (true)
     {
-      DrawThickPoint(board, x, y, cell, thickness);
+      DrawSizedPoint(board, x, y, cell, width, height);
 
       if (x == endX && y == endY)
         break;
@@ -58,22 +62,23 @@ public static class LineRasterizer
     }
   }
 
-  // Рисование точки с учётом толщины
-  private static void DrawThickPoint(
+  private static void DrawSizedPoint(
       IBoard board,
       int x,
       int y,
       BoardCell cell,
-      int thickness)
+      int width,
+      int height)
   {
-    int offset = -(thickness - 1) / 2;
+    int offsetX = -(width - 1) / 2;
+    int offsetY = -(height - 1) / 2;
 
-    for (int row = 0; row < thickness; row++)
+    for (int row = 0; row < height; row++)
     {
-      for (int col = 0; col < thickness; col++)
+      for (int col = 0; col < width; col++)
       {
-        int targetX = x + offset + col;
-        int targetY = y + offset + row;
+        int targetX = x + offsetX + col;
+        int targetY = y + offsetY + row;
 
         if (targetX < 0 || targetX >= board.Width ||
             targetY < 0 || targetY >= board.Height)
@@ -84,7 +89,6 @@ public static class LineRasterizer
     }
   }
 
-  // Проверка координат
   private static void CheckCoordinates(
       IBoard board,
       int x,

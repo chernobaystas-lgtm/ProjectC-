@@ -16,7 +16,8 @@ public class LineTool : IDrawingTool
         int endX,
         int endY,
         BoardCell cell,
-        int thickness)
+        int width,
+int height)
     {
         LineRasterizer.DrawLine(
             board,
@@ -25,6 +26,7 @@ public class LineTool : IDrawingTool
             endX,
             endY,
             cell,
-            thickness);
+             width,
+ height);
     }
 }

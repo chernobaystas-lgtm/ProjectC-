@@ -16,24 +16,12 @@ public class BoardRenderer
             ?? throw new ArgumentNullException(nameof(board));
     }
 
-    // Полное отображение рабочей области
     public void Render(
         BoardCursor? cursor = null,
         int startX = 0,
         int startY = 0,
         MiniBar? miniBar = null)
     {
-
-        // Отображение доски в терминале
-
-        /* Renderer:
-1. Получает размер доски.
-2. Проходит по каждой клетке.
-3. Получает символ и цвет через GetCell().
-4. Устанавливает цвет текста в консоли.
-5. Выводит символ в нужную позицию.
-
-*/
         if (startX < 0 || startY < 0)
             throw new ArgumentOutOfRangeException();
 
@@ -60,7 +48,6 @@ public class BoardRenderer
         }
     }
 
-    // Отрисовка холста
     private void DrawBoard(
         BoardCursor? cursor,
         int startX,
@@ -68,7 +55,6 @@ public class BoardRenderer
     {
         ConsoleColor oldBackground = Console.BackgroundColor;
 
-        // Верхняя граница
         WriteAt(
             startX,
             startY,
@@ -107,18 +93,15 @@ public class BoardRenderer
 
             Console.BackgroundColor = oldBackground;
             Console.ForegroundColor = ConsoleColor.Gray;
-
             Console.Write('│');
         }
 
-        // Нижняя граница
         WriteAt(
             startX,
             startY + board.Height + 1,
             "└" + new string('─', board.Width) + "┘");
     }
 
-    // Отрисовка панели инструментов
     private void DrawMiniBar(
         MiniBar miniBar,
         int offsetX,
@@ -127,66 +110,70 @@ public class BoardRenderer
         int x = miniBar.X + offsetX;
         int y = miniBar.Y + offsetY;
 
-        int width = miniBar.Width;
-        int height = miniBar.Height;
-
-        if (width <= 0 || height <= 0)
-            return;
+        // Мінімальна ширина та висота панелі
+        int width = Math.Max(miniBar.Width, 23);
+        int height = Math.Max(miniBar.Height, 16);
 
         string[] rows = new string[height];
 
         for (int i = 0; i < height; i++)
             rows[i] = string.Empty;
 
-        // Заголовок
-        SetRow(rows, 0, "ИНСТРУМЕНТЫ");
+        SetRow(rows, 0, "ІНСТРУМЕНТИ");
         SetRow(rows, 1, new string('─', width));
 
-        // Основные разделы
         for (int i = 0; i < miniBar.MenuItems.Count; i++)
         {
             string prefix =
                 i == miniBar.SelectedMenuIndex ? "> " : "  ";
 
+            string translatedName = TranslateMenuItem(
+                miniBar.MenuItems[i]);
+
             SetRow(
                 rows,
                 i + 2,
-                prefix + (i + 1) + ". " + miniBar.MenuItems[i]);
+                prefix + (i + 1) + ". " + translatedName);
         }
 
-        // Нижние действия
         SetRow(rows, 9, new string('─', width));
-        SetRow(rows, 10, "← Undo");
-        SetRow(rows, 11, "→ Redo");
+        SetRow(rows, 10, "← Скасувати");
+        SetRow(rows, 11, "→ Повторити");
         SetRow(rows, 12, new string('─', width));
-        SetRow(rows, 13, "↓ Скачать PNG");
-        SetRow(rows, 14, "Tab: Холст / панель");
-        SetRow(rows, 15, "Esc: Выход");
 
-        // Верхняя граница панели
-        Console.ForegroundColor = ConsoleColor.Gray;
+        SetRow(rows, 14, "Tab: Полотно / меню");
+        SetRow(rows, 15, "Esc: Вихід");
 
         WriteAt(
             x,
             y,
             "┌" + new string('─', width) + "┐");
 
-        // Содержимое панели
         for (int i = 0; i < height; i++)
         {
             Console.SetCursorPosition(x, y + i + 1);
 
             Console.ForegroundColor = ConsoleColor.Gray;
             Console.BackgroundColor = ConsoleColor.Black;
-
             Console.Write('│');
 
-            bool selected =
-                i == miniBar.SelectedMenuIndex + 2;
+            int menuIndex = i - 2;
 
-            if (selected)
+            bool active = IsActiveMenuItem(
+                miniBar,
+                menuIndex);
+
+            bool selected =
+                menuIndex == miniBar.SelectedMenuIndex;
+
+            if (active)
             {
-                Console.BackgroundColor = ConsoleColor.DarkGreen;
+                Console.BackgroundColor = ConsoleColor.DarkRed;
+                Console.ForegroundColor = ConsoleColor.White;
+            }
+            else if (selected)
+            {
+                Console.BackgroundColor = ConsoleColor.DarkBlue;
                 Console.ForegroundColor = ConsoleColor.White;
             }
             else
@@ -199,18 +186,54 @@ public class BoardRenderer
 
             Console.BackgroundColor = ConsoleColor.Black;
             Console.ForegroundColor = ConsoleColor.Gray;
-
             Console.Write('│');
         }
 
-        // Нижняя граница панели
         WriteAt(
             x,
             y + height + 1,
             "└" + new string('─', width) + "┘");
     }
 
-    // Добавление строки в панель
+    private string TranslateMenuItem(string item)
+    {
+        return item switch
+        {
+            "Рисовать" => "Малювати",
+            "Стирать" => "Стирати",
+            "Фигуры и линия" => "Фігури та лінія",
+            "Цвет" => "Колір",
+            "Символ" => "Символ",
+            "Размер" => "Розмір",
+
+            "Малювати" => "Малювати",
+            "Стирати" => "Стирати",
+            "Фігури та лінія" => "Фігури та лінія",
+            "Колір" => "Колір",
+            "Розмір" => "Розмір",
+
+            _ => item
+        };
+    }
+
+    private bool IsActiveMenuItem(
+        MiniBar miniBar,
+        int menuIndex)
+    {
+        string tool = miniBar.ActiveTool.Name;
+
+        return menuIndex switch
+        {
+            0 => tool == "Brush",
+            1 => tool == "Eraser",
+            2 => tool == "Line"
+                 || tool == "Rectangle"
+                 || tool == "Triangle"
+                 || tool == "Ellipse",
+            _ => false
+        };
+    }
+
     private void SetRow(
         string[] rows,
         int index,
@@ -220,7 +243,6 @@ public class BoardRenderer
             rows[index] = value;
     }
 
-    // Подгонка текста под ширину панели
     private string FitRow(string value, int width)
     {
         if (value.Length > width)
@@ -229,7 +251,6 @@ public class BoardRenderer
         return value.PadRight(width);
     }
 
-    // Вывод в определённую позицию
     private void WriteAt(int x, int y, string value)
     {
         Console.SetCursorPosition(x, y);
